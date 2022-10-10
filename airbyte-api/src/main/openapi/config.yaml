@@ -4751,6 +4751,9 @@ components:
           $ref: "#/components/schemas/AttemptNumber"
         workflowId:
           $ref: "#/components/schemas/WorkflowId"
+        processingTaskQueue:
+          type: string
+          default: "" # during first release this value might be not set by old clients on aws data plane. Setting default to empty to avoid any possible errors.
     InternalOperationResult:
       type: object
       required:

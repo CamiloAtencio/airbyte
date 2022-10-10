@@ -19,6 +19,7 @@ import io.airbyte.workers.Worker;
 import io.airbyte.workers.WorkerUtils;
 import io.temporal.activity.Activity;
 import io.temporal.activity.ActivityExecutionContext;
+import io.temporal.workflow.Workflow;
 import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -149,6 +150,7 @@ public class TemporalAttemptExecution<INPUT, OUTPUT> implements Supplier<OUTPUT>
       airbyteApiClient.getAttemptApi().setWorkflowInAttempt(new SetWorkflowInAttemptRequestBody()
           .jobId(Long.parseLong(jobRunConfig.getJobId()))
           .attemptNumber(jobRunConfig.getAttemptId().intValue())
+          .processingTaskQueue(Workflow.getInfo().getTaskQueue())
           .workflowId(workflowId));
     }
   }
