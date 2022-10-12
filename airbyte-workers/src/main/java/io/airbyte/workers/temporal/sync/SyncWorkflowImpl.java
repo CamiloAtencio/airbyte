@@ -4,6 +4,13 @@
 
 package io.airbyte.workers.temporal.sync;
 
+import static io.airbyte.workers.temporal.TemporalTraceConstants.CONNECTION_ID_TAG_KEY;
+import static io.airbyte.workers.temporal.TemporalTraceConstants.DESTINATION_DOCKER_IMAGE_TAG_KEY;
+import static io.airbyte.workers.temporal.TemporalTraceConstants.JOB_ID_TAG_KEY;
+import static io.airbyte.workers.temporal.TemporalTraceConstants.SOURCE_DOCKER_IMAGE_TAG_KEY;
+import static io.airbyte.workers.temporal.TemporalTraceConstants.WORKFLOW_TRACE_OPERATION_NAME;
+
+import datadog.trace.api.Trace;
 import io.airbyte.config.NormalizationInput;
 import io.airbyte.config.NormalizationSummary;
 import io.airbyte.config.OperatorDbtInput;
@@ -11,12 +18,14 @@ import io.airbyte.config.StandardSyncInput;
 import io.airbyte.config.StandardSyncOperation;
 import io.airbyte.config.StandardSyncOperation.OperatorType;
 import io.airbyte.config.StandardSyncOutput;
+import io.airbyte.metrics.lib.ApmTraceUtils;
 import io.airbyte.persistence.job.models.IntegrationLauncherConfig;
 import io.airbyte.persistence.job.models.JobRunConfig;
 import io.airbyte.protocol.models.ConfiguredAirbyteCatalog;
 import io.airbyte.workers.temporal.annotations.TemporalActivityStub;
 import io.temporal.workflow.Workflow;
 import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -42,12 +51,18 @@ public class SyncWorkflowImpl implements SyncWorkflow {
   @TemporalActivityStub(activityOptionsBeanName = "shortActivityOptions")
   private NormalizationSummaryCheckActivity normalizationSummaryCheckActivity;
 
+  @Trace(operationName = WORKFLOW_TRACE_OPERATION_NAME)
   @Override
   public StandardSyncOutput run(final JobRunConfig jobRunConfig,
                                 final IntegrationLauncherConfig sourceLauncherConfig,
                                 final IntegrationLauncherConfig destinationLauncherConfig,
                                 final StandardSyncInput syncInput,
                                 final UUID connectionId) {
+
+    ApmTraceUtils
+        .addTagsToTrace(Map.of(CONNECTION_ID_TAG_KEY, connectionId.toString(), JOB_ID_TAG_KEY, jobRunConfig.getJobId(), SOURCE_DOCKER_IMAGE_TAG_KEY,
+            sourceLauncherConfig.getDockerImage(),
+            DESTINATION_DOCKER_IMAGE_TAG_KEY, destinationLauncherConfig.getDockerImage()));
 
     final int version = Workflow.getVersion(VERSION_LABEL, Workflow.DEFAULT_VERSION, CURRENT_VERSION);
     StandardSyncOutput syncOutput = replicationActivity.replicate(jobRunConfig, sourceLauncherConfig, destinationLauncherConfig, syncInput);
