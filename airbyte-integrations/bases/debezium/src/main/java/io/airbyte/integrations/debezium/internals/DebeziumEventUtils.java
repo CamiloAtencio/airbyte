@@ -19,6 +19,7 @@ public class DebeziumEventUtils {
   public static final String CDC_LSN = "_ab_cdc_lsn";
   public static final String CDC_UPDATED_AT = "_ab_cdc_updated_at";
   public static final String CDC_DELETED_AT = "_ab_cdc_deleted_at";
+  public static final String CDC_INSERTED_AT = "_ab_cdc_inserted_at";
 
   public static AirbyteMessage toAirbyteMessage(final ChangeEvent<String, String> event,
                                                 final CdcMetadataInjector cdcMetadataInjector,
@@ -59,7 +60,13 @@ public class DebeziumEventUtils {
     if (after.isNull()) {
       base.put(CDC_DELETED_AT, transactionTimestamp);
     } else {
-      base.put(CDC_DELETED_AT, (String) null);
+      base.put(CDC_DELETED_AT, (String) null );
+    }
+
+    if (before.isNull()){
+      base.put(CDC_INSERTED_AT,  transactionTimestamp);
+    } else {
+      base.put(CDC_INSERTED_AT, (String) null);
     }
 
     return base;

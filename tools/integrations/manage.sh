@@ -211,7 +211,7 @@ cmd_publish() {
   local image_version; image_version=$(_get_docker_image_version "$path"/Dockerfile)
   local versioned_image=$image_name:$image_version
   local latest_image="$image_name" # don't include ":latest", that's assumed here
-  local build_arch="linux/amd64,linux/arm64"
+  local build_arch="linux/amd64"
 
   # learn about this version of Docker
   echo "--- docker info ---"
@@ -284,8 +284,8 @@ cmd_publish() {
     for arch in $(echo $build_arch | sed "s/,/ /g")
     do
       echo "building base images for $arch"
-      docker buildx build -t airbyte/integration-base:dev --platform $arch --load airbyte-integrations/bases/base
-      docker buildx build -t airbyte/integration-base-java:dev --platform $arch --load airbyte-integrations/bases/base-java
+      docker buildx build -t airbyte/integration-base:dev --platform linux/amd64 --load airbyte-integrations/bases/base
+      docker buildx build -t airbyte/integration-base-java:dev --platform linux/amd64 --load airbyte-integrations/bases/base-java
 
       local arch_versioned_image=$image_name:`echo $arch | sed "s/\//-/g"`-$image_version
       echo "Publishing new version ($arch_versioned_image) from $path"

@@ -7,6 +7,7 @@ package io.airbyte.integrations.source.postgres;
 import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_DELETED_AT;
 import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_LSN;
 import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_UPDATED_AT;
+import static io.airbyte.integrations.debezium.internals.DebeziumEventUtils.CDC_INSERTED_AT;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -274,6 +275,7 @@ public class CdcPostgresSourceTest extends CdcSourceTest {
     assertNull(data.get(CDC_LSN));
     assertNull(data.get(CDC_UPDATED_AT));
     assertNull(data.get(CDC_DELETED_AT));
+    assertNull(data.get(CDC_INSERTED_AT));
   }
 
   @Override
@@ -292,6 +294,7 @@ public class CdcPostgresSourceTest extends CdcSourceTest {
     data.remove(CDC_LSN);
     data.remove(CDC_UPDATED_AT);
     data.remove(CDC_DELETED_AT);
+    data.remove(CDC_INSERTED_AT);
   }
 
   @Override
@@ -304,6 +307,7 @@ public class CdcPostgresSourceTest extends CdcSourceTest {
     properties.set(CDC_LSN, numberType);
     properties.set(CDC_UPDATED_AT, stringType);
     properties.set(CDC_DELETED_AT, stringType);
+    properties.set(CDC_INSERTED_AT, stringType);
 
   }
 
