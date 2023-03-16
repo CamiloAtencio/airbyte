@@ -56,6 +56,10 @@ public class DebeziumPropertiesManager {
 
     props.setProperty("errors.max.retries", "10");
     props.setProperty("errors.retry.delay.initial.ms", "1000");
+    // SET PROPERTY FOR INITIALSNAPSHOT=FALSE
+
+    // read from user input props.setProperty("database.dbname", config.get(JdbcUtils.DATABASE_KEY).asText());
+    props.setProperty("snapshot.mode", "never");
 
     if (schemaHistoryManager.isPresent()) {
       // https://debezium.io/documentation/reference/2.1/operations/debezium-server.html#debezium-source-database-history-class
