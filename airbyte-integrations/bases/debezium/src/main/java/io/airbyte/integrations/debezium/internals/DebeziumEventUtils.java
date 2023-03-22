@@ -55,19 +55,17 @@ public class DebeziumEventUtils {
     final String transactionTimestamp = new Timestamp(transactionMillis).toInstant().toString();
 
     base.put(CDC_UPDATED_AT, transactionTimestamp);
+
     cdcMetadataInjector.addMetaData(base, source);
 
     if (after.isNull()) {
       base.put(CDC_DELETED_AT, transactionTimestamp);
-    } else {
+      base.put(CDC_INSERTED_AT,  (String) null);
+    } else if (before.isNull())  {
       base.put(CDC_DELETED_AT, (String) null );
+      base.put(CDC_INSERTED_AT,  transactionTimestamp);
     }
 
-    if (before.isNull()){
-      base.put(CDC_INSERTED_AT,  transactionTimestamp);
-    } else {
-      base.put(CDC_INSERTED_AT, (String) null);
-    }
 
     return base;
   }

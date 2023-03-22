@@ -29,7 +29,7 @@ public class PostgresCdcProperties {
   static Properties getDebeziumDefaultProperties(final JdbcDatabase database) {
     final JsonNode sourceConfig = database.getSourceConfig();
     final Properties props = commonProperties(database);
-    props.setProperty("plugin.name", PostgresUtils.getPluginValue(sourceConfig.get("replication_method")));
+    props.setProperty("plugin.name", "pgoutput");
     if (sourceConfig.has("snapshot_mode")) {
       // The parameter `snapshot_mode` is passed in test to simulate reading the WAL Logs directly and
       // skip initial snapshot
@@ -92,7 +92,7 @@ public class PostgresCdcProperties {
     }
     return props;
   }
-
+//Modify Here
   static Properties getSnapshotProperties(final JdbcDatabase database) {
     final Properties props = commonProperties(database);
     props.setProperty("snapshot.mode", "initial_only");
