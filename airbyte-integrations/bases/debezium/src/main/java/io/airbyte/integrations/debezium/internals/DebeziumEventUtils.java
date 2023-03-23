@@ -28,8 +28,9 @@ public class DebeziumEventUtils {
     final JsonNode before = debeziumRecord.get("before");
     final JsonNode after = debeziumRecord.get("after");
     final JsonNode source = debeziumRecord.get("source");
+    final JsonNode op = debeziumRecord.get("op");
 
-    final JsonNode data = formatDebeziumData(before, after, source, cdcMetadataInjector);
+    final JsonNode data = formatDebeziumData(before, after, source, op, cdcMetadataInjector);
     final String schemaName = cdcMetadataInjector.namespace(source);
     final String streamName = source.get("table").asText();
 
@@ -48,6 +49,7 @@ public class DebeziumEventUtils {
   private static JsonNode formatDebeziumData(final JsonNode before,
                                              final JsonNode after,
                                              final JsonNode source,
+                                             final JsonNode op,
                                              final CdcMetadataInjector cdcMetadataInjector) {
     final ObjectNode base = (ObjectNode) (after.isNull() ? before : after);
 
@@ -57,13 +59,19 @@ public class DebeziumEventUtils {
     base.put(CDC_UPDATED_AT, transactionTimestamp);
 
     cdcMetadataInjector.addMetaData(base, source);
+    
+    
+
+    if (op.textValue().equals("c")) {
+      base.put(CDC_INSERTED_AT, transactionTimestamp);
+    } else {
+      base.put(CDC_INSERTED_AT, (String) null );
+    }
 
     if (after.isNull()) {
       base.put(CDC_DELETED_AT, transactionTimestamp);
-      base.put(CDC_INSERTED_AT,  (String) null);
     } else if (before.isNull())  {
       base.put(CDC_DELETED_AT, (String) null );
-      base.put(CDC_INSERTED_AT,  transactionTimestamp);
     }
 
 
